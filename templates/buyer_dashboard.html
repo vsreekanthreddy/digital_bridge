@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Buyer Dashboard</h2>
+<ul>
+    {% for farmer in farmers %}
+        <li>
+            <strong>{{ farmer.crop }}</strong><br>
+            Price: {{ farmer.price }}<br>
+            Contact: {{ farmer.contact }}<br>
+            Feedback: {{ farmer.feedback }}<br>
+            <a href="{{ farmer.video_link }}">Join Video Conference</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+

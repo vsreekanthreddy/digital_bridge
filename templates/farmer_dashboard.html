@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Farmer Dashboard</h2>
+<form method="POST">
+    <input type="text" name="crop" placeholder="Crop Name" required>
+    <input type="text" name="price" placeholder="Price" required>
+    <input type="text" name="contact" placeholder="Contact Information" required>
+    <textarea name="feedback" placeholder="Feedback" required></textarea>
+    <input type="url" name="video_link" placeholder="Video Conference Link" required>
+    <button type="submit">Add Crop</button>
+</form>
+
+<h3>Your Crops</h3>
+<ul>
+    {% for farmer in farmers %}
+        <li>
+            <img src="{{ farmer.image_url }}" alt="Farmer Image" width="100">
+            <strong>{{ farmer.crop }}</strong><br>
+            Price: {{ farmer.price }}<br>
+            Contact: {{ farmer.contact }}<br>
+            Feedback: {{ farmer.feedback }}<br>
+            <a href="{{ farmer.video_link }}">Join Video Conference</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section">
+    <h1>Welcome to The Digital Bridge for Farmers and Buyers</h1>
+    <p>A platform that connects farmers directly with buyers.</p>
+</div>
+
+<h2>Available Crops</h2>
+<ul>
+    {% for farmer in farmers %}
+        <li>
+            <img src="{{ url_for('static', filename='Farmer.jpg') }}" alt="Farmer Image" width="100">
+            <strong>{{ farmer.crop }}</strong><br>
+            Price: {{ farmer.price }}<br>
+            Contact: {{ farmer.contact }}<br>
+            Feedback: {{ farmer.feedback }}<br>
+            <a href="{{ farmer.video_link }}">Join Video Conference</a>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+

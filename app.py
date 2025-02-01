@@ -1,22 +1,49 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+import random
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # For session management
+app.secret_key = 'your_secret_key_here'
 
-# Mock user data (for simplicity, you can replace it with a real database in production)
-users = []
-logged_in_user = None
-
-# Mock data for farmers and buyers
-farmers = [
-    {"name": "John Doe", "crop": "Tomatoes", "price": "$50 per kg", "contact": "123-456-7890", "image": "farmer_placeholder.jpg"},
-    {"name": "Jane Smith", "crop": "Potatoes", "price": "$30 per kg", "contact": "987-654-3210", "image": "farmer_placeholder.jpg"}
-]
+# Mock Data
+farmers = []
 buyers = []
+users = [{"username": "admin", "password": "admin", "role": "admin"}]  # Admin for login
+
+vegetables = [
+    "Tomatoes", "Potatoes", "Carrots", "Lettuce", "Spinach", "Broccoli", "Cabbage", "Cucumber", 
+    "Onions", "Garlic", "Beans", "Peas", "Zucchini", "Bell Pepper", "Cauliflower", "Pumpkin", 
+    "Radish", "Sweet Corn", "Eggplant", "Chili"
+]
+
+# Login Route
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        
+        # Check for valid login
+        user = next((user for user in users if user["username"] == username and user["password"] == password), None)
+        if user:
+            session['user'] = user["username"]
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html', error="Invalid credentials!")
+    
+    return render_template('login.html')
+
+# Logout Route
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('login'))
 
 @app.route('/')
 def index():
-    return render_template("index.html", farmers=farmers, buyers=buyers)
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    
+    return render_template("index.html", vegetables=farmers)
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -28,46 +55,34 @@ def register():
         return redirect(url_for('login'))
     return render_template("register.html")
 
-@app.route('/login', methods=["GET", "POST"])
-def login():
-    global logged_in_user
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        # Simple login logic (replace with proper validation)
-        user = next((u for u in users if u['username'] == username and u['password'] == password), None)
-        if user:
-            session['username'] = username
-            session['role'] = user['role']
-            logged_in_user = user
-            return redirect(url_for('index'))
-        else:
-            return "Invalid credentials, try again."
-    return render_template("login.html")
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
-
 @app.route('/farmer_dashboard', methods=["GET", "POST"])
 def farmer_dashboard():
-    if 'role' not in session or session['role'] != 'Farmer':
+    if 'user' not in session:
         return redirect(url_for('login'))
+
     if request.method == "POST":
-        name = request.form.get("name")
         crop = request.form.get("crop")
         price = request.form.get("price")
         contact = request.form.get("contact")
-        farmers.append({"name": name, "crop": crop, "price": price, "contact": contact, "image": "farmer_placeholder.jpg"})
+        feedback = request.form.get("feedback")
+        video_link = request.form.get("video_link")
+        image_url = "static/Farmer.jpg"  # Add farmer's image URL
+
+        farmers.append({
+            "crop": crop, "price": price, "contact": contact, "feedback": feedback,
+            "video_link": video_link, "image_url": image_url
+        })
         return redirect(url_for('farmer_dashboard'))
+
     return render_template("farmer_dashboard.html", farmers=farmers)
 
-@app.route('/buyer_dashboard', methods=["GET", "POST"])
+@app.route('/buyer_dashboard')
 def buyer_dashboard():
-    if 'role' not in session or session['role'] != 'Buyer':
+    if 'user' not in session:
         return redirect(url_for('login'))
-    return render_template("buyer_dashboard.html", farmers=farmers, buyers=buyers)
+
+    return render_template("buyer_dashboard.html", farmers=farmers)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
+
